@@ -1,0 +1,89 @@
+// =================================================================
+//                     TEMEL KOMUTLAR
+// =================================================================
+
+// -----------------------------------------------------------------
+// 1) Varolan veritabanlarini listelemek icin. 
+// -----------------------------------------------------------------
+ show dbs //ahan da Trick komut satırı ; ile kapatılmasa da kod run olurrr...
+ show dbs;
+
+// -----------------------------------------------------------------
+// 2) Trick...Veritabani tanimlamak veya icine girmek icin use tablo ismi hep açık olmalı, sorgu yaparken sadece sorgu seçili olmamalı. aksi halde default "test" db içinde sorgu devam eder...
+use("school");
+
+//-----------------------------------------------------------------
+// 3) Icinde bulundugumuz (aktif) Veritabanini gormek icin
+// -----------------------------------------------------------------
+use("school");
+ db;
+
+// -----------------------------------------------------------------
+// 4) Aktif olan veritabaninda bir collection olusturmak icin
+// -----------------------------------------------------------------
+use("school");
+db.createCollection("students");
+
+
+// -----------------------------------------------------------------
+// 5) Aktif olan veritabanini silmek icin  
+// ----------------------------------------------------------------
+use("test");
+db.dropDatabase();
+
+
+// -----------------------------------------------------------------
+// 6) Bir collection ı silmek için
+// -----------------------------------------------------------------
+use("school");
+ db.students.drop();
+
+
+// -----------------------------------------------------------------
+// 7) collection'a bir dokuman eklemek icin
+// Trick...collection create eetmeden doğrudan insertOne komutu ile hem collection create edip hem de data girileblir
+// -----------------------------------------------------------------
+use("school");
+db.students.insertOne({"ad": "Murat", "soyad": "Cakir", "yas": 41});
+use("school");
+db.students.insertOne({"ad": "haluk", "soyad": "bilgin", "yas": 48});
+use("school");
+db.students.insertOne({ad: 'hasan', soyad: "bil", "yas": 18});
+//Trick... collection'a data insert edilirken field'lara ' " ve  space girilebilir. value'ler ' veya " kullanilabilir ama space kullanılamazzz.
+
+
+// -----------------------------------------------------------------
+// 8) Collection'daki tum dokumanlari listelemek (SORGU-QUERY)icin.
+// -----------------------------------------------------------------
+use("school");
+db.students.find();
+
+
+// -----------------------------------------------------------------
+// 9) Collection'a birden fazla dokuman eklemek icin
+// -----------------------------------------------------------------
+use("school")
+db.students.insertMany([
+ {"ad": "Ahmet", "soyad": "Can", "yas": 21},
+ {"ad": "Ali", "soyad": "Can", "yas": 51},
+ {"ad": "Veli", "soyad": "Gel", "yas": 22}] );
+ //Trick... create database ve createCollection girmeden yukarıdaki komutlar girilebilir...
+ // Trick.. insertMany() komutu array gibi elementleri [] ile depolar her bir element {} ile tanımlanır...
+
+
+ // -----------------------------------------------------------------
+// 10) bir değişkene tarih ekleme : new Date()
+// -----------------------------------------------------------------
+use("school");
+db.students.insertOne({"suanki_tarih":new Date()});
+
+
+
+use("school");
+db.students.insertOne({"ad": "mehmet", "soyad": "akgül", "yas": 41, "tarih":new ISODate().getMonth()});
+
+
+
+
+
+
