@@ -63,7 +63,7 @@ db.foods.find({"address.street":{$exists:false}},{_id:0,name:1,restaurant_id:1, 
 
 //QUERY 12 ... score u 7'ye böldükten sonra kalan olarak 0 döndüren restoranlar için restoran id si, adı ve grades seçecek bir MongoDB query create ediniz. $mod:[7,0]
 use("countries");
-db.foods.find({"grades.score":{$mod:[7,0]}},{_id:0,name:1,restaurant_id:1, grades:1})
+db.foods.find({"grades.score":{$mod:[7,0]}},{_id:0,name:1,restaurant_id:1, "grades.$":1})
 
 
 

@@ -193,6 +193,8 @@ db.fiyatlar.find({},{urunAdi:1,_id:0}).sort({fiyat:-1});
 // 1 : A-Z, -1: Z-A ( ASCII formatina gore siralama yapar)
 
 db.fiyatlar.find({fiyat:5000}).sort({urunAdi:1});
+
+
 //Collection da text arama yani istenen bir value  return etmek için 
 use("urunler");
 db.articles.createIndex({subject:"text"})//subcject field degeri text olan parametreye göre index olustur
@@ -201,10 +203,12 @@ db.articles.insertMany([
  {_id:2,subject:"Coffee Shopping",author:"efg",views:5},
  {_id:3,subject:"Baking a cake",author:"abc",views:90},
  {_id:4,subject:"baking",author:"xyz",views:100},
- {_id:1,subject:"Coffee Con Leche",author:"xyz",views:2000},
- {_id:1,subject:"coffee americano",author:"jkl",views:80},
- {_id:1,subject:"coffee and cream",author:"efg",views:10},
- {_id:1,subject:"coffee",author:"xyz",views:10}
- 
+ {_id:5,subject:"Coffee Con Leche",author:"xyz",views:2000},
+ {_id:6,subject:"coffee americano",author:"jkl",views:80},
+ {_id:7,subject:"coffee and cream",author:"efg",views:10},
+ {_id:8,subject:"coffee",author:"xyz",views:10}
+
 ]);
+use("urunler");
+db.articles.find({$text:{$search:"coffee"}})
 
