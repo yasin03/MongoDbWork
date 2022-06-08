@@ -8,7 +8,7 @@ db.foods.find({"grades.score":{$gt:80,$lt:150}},{name:1,grades:1,_id:0});
 
 //QUERY 03 ... Herhangi bir 'American' mutfağı hazırlamayan ve 70'den büyük score a ve -65.754168'den küçük enlem (coord) değerine sahip restoranları bulmak için bir MongoDB query create ediniz.
 use("countries");
-db.foods.find({"cuisine":{$ne:"American"},"grades.score":{$gt:70},"address.coord":{$lt:-65.754168}},{_id:0,name:1});
+db.foods.find({"cuisine":{$ne:"American"},"grades.score":{$gt:70},"address.coord":{$lt:-65.754168}},{_id:0,name:1,address:1});
 
 
 //QUERY 04 ... Adının ilk üç harfi 'Wil' olan restoranlar için restoran id, name, borough ve cuisine bulmak için bir MongoDB query create ediniz.. /^Wil/
