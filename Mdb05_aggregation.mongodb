@@ -108,28 +108,107 @@ db.ogrenciler.aggregate({$group:{_id:"$sube", toplamOgrSayisi:{$sum:1}, maxNot:{
 //---------------------------------------------------------------------------------
 // QUERY 06 ...  yasi 30'dan kucuk olanlarin subelere gore not ortalamalarini hesaplayan query create ediniz.
 //---------------------------------------------------------------------------------
-
+use("okul");
+db.ogrenciler.aggregate({$match:{yas:{$gt:30}}},
+{$group:{_id:"$sube", ort:{$avg:"$not"}}});
 
 //---------------------------------------------------------------------------------
 // QUERY 07 ...  inglizce dersini alanlarin subelere gore sayilarinı hesaplayan query create ediniz.
 //               (ingilizce yanında başka derste olabilir)
 //---------------------------------------------------------------------------------
-                 
+use("okul");
+db.ogrenciler.aggregate({$match:{dersler:{$eq:"ingilizce"}}},
+{$group:{_id:"$sube", toplam : {$sum:1}}});                 
 
 
 //---------------------------------------------------------------------------------
 // QUERY 08 ... fizik veya matematik alanlarin subelere gore sayilari hesaplayan query create ediniz.
 //---------------------------------------------------------------------------------
-
+use("okul");
+db.ogrenciler.aggregate({$match:{dersler:{$in:["fizik","mat"]}}},{$group:{_id:"$sube", toplam : {$sum:1}}});
 
 //---------------------------------------------------------------------------------
 // QUERY 09 ...  sadece Fizik ve Mat dersini alanlarin subelere gore sayilari hesaplayan query create ediniz.
 //---------------------------------------------------------------------------------
-
+use("okul");
+db.ogrenciler.aggregate({$match:{dersler:["fizik","mat"]}},{$group:{_id:"$sube", toplam : {$sum:1}}});
 
 //---------------------------------------------------------------------------------
 // QUERY 10 ...  A subesindeki ogrencileri yasa gore azalan sirada, nota gore yukselen sirada
 //               siralayiniz.
 //---------------------------------------------------------------------------------
+use("okul");
+db.ogrenciler.aggregate({$match:{sube:"A"}},{$sort:{yas:-1,not:1}});
 
 
+use("MEDYA")
+db.hesaplar.insertMany(
+[{"isim" : "ali", "harcamalar":[-80, -40, -50, -120], "kazanc":[100, 150]},
+{"isim" : "Can", "harcamalar" : [-60, -30, -20], "kazanc" : [200, 50, 130] },
+{"isim" : "Canan", "harcamalar" : [-80, -40, -50], "kazanc" : [300, 450] },
+{"isim" : "Betul", "harcamalar" : [-80, -120], "kazanc" : [500, 50, 70, 10] },
+{"isim" : "Ahsen", "harcamalar" : [-140, -50, -120], "kazanc" : [400] },
+{"isim" : "Su", "harcamalar" : [-120], "kazanc" : [22, 375, 65] },
+{"isim" : "Pelin", "harcamalar" : [-180, -40, -70, -12], "kazanc" : [500, 650, 400]}]); 
+
+//---------------------------------------------------------------------------------
+// QUERY 12 ...  var olan dokumanlarda her kisi icin toplam harcama, toplam kazanc ve  
+//     bakiye degerlerini hesaplayarak sorguda dokumana ekleyen query create ediniz.
+//     bakiye'ye gore siralayiniz.
+//     NOT: Sorguda olmayan bir field icin $addFields metodu kullanilabilir. 
+//---------------------------------------------------------------------------------
+use("MEDYA");
+db.hesaplar.aggregate(
+                      {$addFields: {giderler: {$sum:"$harcamalar"},gelirler:{$sum:"$kazanc"}}},
+                      {$addFields:{bakiye:{$sum:["$giderler", "$gelirler"]}}},
+                      {$project: {"harcamalar":0,"kazanc":0,"-id":0}}
+                      );
+//aggregate de $project içine sadece console’de görülmesi istenmeyen ( console cosmetic) field’lar(:0) yazılır.
+
+
+//---------------------------------------------------------------------------------
+// QUERY 13 ...  hesaplar collection'nin muhasabe adinda bir kopyasini olusturalim.
+//---------------------------------------------------------------------------------
+use("MEDYA");
+db.hesaplar.aggregate({$project:{_id : 0}},{$merge: {  into: 'muhasebe'}});
+//_id field kapatıldı ki yeni coll. (muhasebe) uniqe _id ataması yapıldı
+//db.hesaplar.aggregate( {$merge: {into:“muhasabe”}});//Trick...id:0 kapatılmazsa eski id lerle kopya oluşturacaktır.
+
+
+
+//---------------------------------------------------------------------------------
+// QUERY 14 ...  hesaplar collection'nindan harcamalar kismini cikararak kazanclar adinda 
+//     yeni bir kopyasini olusturalim.
+//---------------------------------------------------------------------------------
+use("MEDYA");
+db.hesaplar.aggregate({$project:{harcamalar:0, _id:0}},{$merge: {into: 'kazanclar'}});
+
+
+//==================================================================================
+//                                  BULKWRITE (toplu yazmak)
+//  Birden fazla islemi ayni komutla gerceklestirmek icin BulkWrite kullanilabilir.
+// https://docs.mongodb.com/manual/reference/method/db.collection.bulkWrite/
+// db.collections.bulkWrite([
+//   {insertOne:{"document": {yazar: "........", fiyat:....., yayinYili : ...... }}},
+//   {updateOne:{"filter":{yazar: "......"}, "update": {$set: {fiyat:.......}}}},
+//   {replaceOne:{"filter":{yazar:"......."}, "replacement": {yazar: "......", fiyat:.....}}},
+//   {deleteOne:{"filter" : {yazar: "........."}}}
+//    ]);
+//==================================================================================
+use("MEDYA");
+db.hikayeler.insertMany(
+[{"yazar" : "Mehmet Bak", "fiyat" : 60, "yayinYili" : 1998 },
+{"yazar" : "Ali Gel", "fiyat" : 75, "yayinYili" : 2000 },
+{"yazar" : "Su Ak", "fiyat" : 90, "yayinYili" : 2005 },
+{"yazar" : "İsmet Kaç", "fiyat" : 35, "yayinYili" : 2010 },
+{"yazar" : "Pelin Su", "fiyat" : 80, "yayinYili" : 2020 },
+{"yazar" : "Suat Ok", "fiyat" : 54, "yayinYili" : 2001},
+{"yazar" : "Pelin Su", "fiyat" : 50, "yayinYili" : 2020 }]);
+
+use("MEDYA");
+db.hikayeler.bulkWrite([
+   {insertOne:{"document": {yazar: "Miraç", fiyat:100 , yayinYili : 2022 }}},
+   {updateOne:{"filter":{yazar: "Ali Gel"}, "update": {$set: {fiyat:95}}}},
+   {replaceOne:{"filter":{yazar:"Su Ak"}, "replacement": {yazar: "Yusuf Bey", fiyat:111}}},
+   {deleteOne:{"filter" : {yazar: "Pelin Su"}}}
+]);
